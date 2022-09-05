@@ -99,10 +99,11 @@ function convert(mson, options) {
 }
 
 function convertEnum(contents) {
-    var schema = { type: '', enum: [] };
     if (!contents) {
-        return schema;
+        // If we have empty enum, then it is Any type
+        return { type: "object", properties: {} };
     }
+    var schema = { type: '', enum: [] };
     for (var i = 0; i < contents.length; i++) {
         var content = contents[i];
         if (!schema.type) {

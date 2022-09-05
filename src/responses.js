@@ -70,7 +70,10 @@ const setResponseSchema = (responses, response, schema, options) => {
     schema = toOpenApi(schema)
 
     // In openAPI 3 the schema lives under the content type
-    const contentTypeHeader = response.headers.find((h) => h.name.toLowerCase() === 'content-type')
+    let contentTypeHeader = response.headers.find((h) => h.name.toLowerCase() === 'content-type')
+    if (!contentTypeHeader) {
+        contentTypeHeader = { name: 'Content-Type', value: 'application/json' };
+    }
     if (!contentTypeHeader.value) {
         return responses
     }

@@ -111,7 +111,9 @@ function convertEnum(contents) {
         } else if (schema.type != content.element) {
             // WARN!! mixed type enum
         }
-        schema.enum.push(content.content);
+        if (schema.enum.findIndex((c) => c === content.content) === -1) {
+            schema.enum.push(content.content);
+        }
     }
     return schema;
 }

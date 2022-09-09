@@ -55,11 +55,11 @@ var apib2swagger = module.exports.convertParsed = function (apib, options) {
     apib.content.filter(function (content) {
         return content.element === 'category';
     }).forEach(function (category) {
-        var groupName = category.attributes ? category.attributes.name : '';
-        if (groupName && !tags[groupName]) {
-            tags[groupName] = { name: groupName };
-        }
         category.content.forEach(function (content) {
+            const groupName = content.name ? content.name : '';
+            if (groupName && !tags[groupName]) {
+                tags[groupName] = { name: groupName };
+            }
             if (content.element === 'resource') {
                 // (name, description) in Resource section are discarded
                 const definitions = swaggerDefinitions(content, options);

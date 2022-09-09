@@ -1,6 +1,6 @@
 const { fixArraySchema, hasFileRef, getRefFromInclude, searchDataStructure } = require('./util')
 const escapeJSONPointer = require('./escape_json_pointer')
-const isEqual = require('lodash.isequal')
+const { isEqual } = require('lodash')
 const http = require('http')
 const toOpenApi = require('json-schema-to-openapi-schema')
 

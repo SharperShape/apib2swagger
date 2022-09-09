@@ -1,4 +1,5 @@
 var escapeJSONPointer = require('./escape_json_pointer');
+const _ = require('lodash');
 
 function convertMsonToJsonSchema(content, options) {
     // for apib._version = "4.0"
@@ -83,6 +84,10 @@ function convert(mson, options) {
         if (propertySchema.type === 'array' && !fixedType) {
             propertySchema.items = {}; // reset item schema
         }
+        if ('enum' in propertySchema && propertySchema.enum.length > 0) {
+            propertySchema.enum = [...new Set(propertySchema.enum)];
+        }
+
         schema.properties[member.content.key.content] = propertySchema;
     }
 
@@ -111,11 +116,14 @@ function convertEnum(contents) {
         } else if (schema.type != content.element) {
             // WARN!! mixed type enum
         }
-        if (schema.enum.findIndex((c) => c === content.content) === -1) {
+        if (content.content) {
             schema.enum.push(content.content);
         }
     }
-    return schema;
+    return {
+        ...schema,
+        enum: [...new Set(schema.enum)]
+    };
 }
 
 module.exports = convertMsonToJsonSchema;

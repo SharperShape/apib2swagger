@@ -1,5 +1,5 @@
 const { hasFileRef, getRefFromInclude, searchDataStructure, generateSchemaFromExample } = require('./util')
-const isEqual = require('lodash.isequal')
+const _ = require('lodash')
 const escapeJSONPointer = require('./escape_json_pointer')
 const toOpenApi = require('json-schema-to-openapi-schema')
 
@@ -22,7 +22,7 @@ const swaggerHeaders = function (options, headers) {
             param['x-example'] = element.value
             param.type = 'string' // TODO: string, number, boolean, integer, array
         }
-        if (!params.find(p => isEqual(p, param)))
+        if (!params.find(p => _.isEqual(p, param)))
         params.push(param);
     }
     return params;
@@ -66,7 +66,7 @@ const setSecurity = (context, request, operation) => {
         if (!operation.security) {
             operation.security = [security];
         } else {
-            if (!operation.security.find(s => isEqual(s, security))){
+            if (!operation.security.find(s => _.isEqual(s, security))){
                 operation.security.push(security);
             }
         }
@@ -102,7 +102,7 @@ const mergeHeaders = (headers, parameters, options) => {
         // We are comparing the whole object instead of just the name to allow duplicate names.
         // In doing so, we allow multiple types of Authorization headers to be specified.
         nonDuplicateHeaders = headers.filter(header => 
-            !parameters.find(p => isEqual(p, header))
+            !parameters.find(p => _.isEqual(p, header))
         )
     } else {
         nonDuplicateHeaders = headers.filter(header => 
@@ -272,13 +272,13 @@ const setOpenApiRequestSchema = (operation, schema) => {
         const { oneOf } = operation.requestBody.content[s.contentType].schema
         if (oneOf){
             // If oneOf already exists we can just add the new schema if its not a duplicate.
-            if (!oneOf.find(sc => isEqual(sc, s.scheme))){
+            if (!oneOf.find(sc => _.isEqual(sc, s.scheme))){
                 operation.requestBody.content[s.contentType].schema.oneOf.push(s.scheme)
             }
             return
         }
         const existing = operation.requestBody.content[s.contentType].schema
-        if (isEqual(existing, s.scheme)){
+        if (_.isEqual(existing, s.scheme)){
             return
         }
         // If oneOf does not exist and its not a duplicate, we need to create it, 
@@ -352,6 +352,16 @@ module.exports.processRequests = (operation, action, context) => {
             operation.requestBody.content = bodyExamples
         }
     }
+    
+    _.cloneDeepWith(operation, (value, key) => {
+        if (_.isObject(value) && 'enum' in value && _.isArray(value.enum)) {
+            const uniqueEnums = [...new Set(value.enum)];
+            if (uniqueEnums.length < value.enum.length) {
+                value.default = value.enum[0];
+            }
+            value.enum = uniqueEnums;
+        }
+    });
   
     return openApi3 ? setOpenApiRequestSchema(operation, schema) : setSwaggerRequestSchema(operation, schema)
 }

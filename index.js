@@ -151,7 +151,12 @@ var swaggerPaths = function (context, tag, resource) {
         var attrUriTemplate = UriTemplate.parse(action.attributes.uriTemplate),
             attrPathName = swaggerPathName(attrUriTemplate);
         if (!paths[attrPathName]) paths[attrPathName] = {};
-        paths[attrPathName][action.method.toLowerCase()] = swaggerOperation(context, [], attrUriTemplate, action, tag);
+        const actionOptions = swaggerOperation(context, [], attrUriTemplate, action, tag);;
+        if (paths[attrPathName][action.method.toLowerCase()]) {
+            paths[`${attrPathName}/`] = {[action.method.toLowerCase()]: actionOptions};
+        } else {
+            paths[attrPathName][action.method.toLowerCase()] = actionOptions
+        }
     }
 };
 

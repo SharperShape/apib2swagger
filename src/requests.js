@@ -18,6 +18,9 @@ const swaggerHeaders = function (options, headers) {
         if (options.openApi3) {
             param.schema = { type: 'string' }
             param.example = element.value
+            if (param.example && param.description === `e.g. ${element.value}`) {
+                param.description = '';
+            }
         } else {
             param['x-example'] = element.value
             param.type = 'string' // TODO: string, number, boolean, integer, array
